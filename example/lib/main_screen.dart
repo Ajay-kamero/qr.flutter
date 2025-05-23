@@ -90,11 +90,7 @@ class _MainScreenState extends State<MainScreen> {
                           Color(0xffee82ee),
                         ],
                       ),*/
-                      eyeStyle: const QrEyeStyle(
-                        eyeShape: QrEyeShape.square,
-                        color: Color(0xff128760),
-                        borderRadius: 10,dottedInnerPattern: true
-                      ),
+                      eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xff128760), borderRadius: 10, dottedInnerPattern: true),
                       dataModuleStyle: const QrDataModuleStyle(
                         dataModuleShape: QrDataModuleShape.circle,
                         color: Color(0xff1a5441),
@@ -102,18 +98,13 @@ class _MainScreenState extends State<MainScreen> {
                         roundedOutsideCorners: true,
                       ),
                       embeddedImage: AssetImage('assets/images/logo.jpg'),
-                      embeddedImageStyle: QrEmbeddedImageStyle(
-                        safeArea: true,
-                        safeAreaMultiplier: 1.1,
-                        borderRadius: 10,
-                      ),
+                      embeddedImageStyle: QrEmbeddedImageStyle(safeArea: true, safeAreaMultiplier: 1.1, borderRadius: 10, maxHeight: 60,size: Size(0, 70)),
                     ),
                   ),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40)
-                    .copyWith(bottom: 40),
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40).copyWith(bottom: 40),
                 child: Text(message),
               ),
             ],

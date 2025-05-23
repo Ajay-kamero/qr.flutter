@@ -221,13 +221,21 @@ class QrPainter extends CustomPainter {
     Offset? embeddedImagePosition;
     Offset? safeAreaPosition;
     Rect? safeAreaRect;
+    // --- PATCH: Override embeddedImageSize if maxHeight is set ---
     if (embeddedImage != null) {
       final originalSize = Size(
         embeddedImage!.width.toDouble(),
         embeddedImage!.height.toDouble(),
       );
       final requestedSize = embeddedImageStyle.size;
-      embeddedImageSize = _scaledAspectSize(size, originalSize, requestedSize);
+      // If maxHeight is set, override the height and scale width to maintain aspect ratio
+      if (embeddedImageStyle.maxHeight != null) {
+        final maxH = embeddedImageStyle.maxHeight!;
+        final aspect = originalSize.width / originalSize.height;
+        embeddedImageSize = Size(maxH * aspect, maxH);
+      } else {
+        embeddedImageSize = _scaledAspectSize(size, originalSize, requestedSize);
+      }
       embeddedImagePosition = Offset(
         (size.width - embeddedImageSize.width) / 2.0,
         (size.height - embeddedImageSize.height) / 2.0,

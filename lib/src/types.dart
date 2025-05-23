@@ -167,6 +167,7 @@ class QrEmbeddedImageStyle {
     this.embeddedImageShape = EmbeddedImageShape.none,
     this.shapeColor,
     this.borderRadius = 0,
+    this.maxHeight,
   });
 
   /// The size of the image. If one dimension is zero then the other dimension
@@ -192,6 +193,9 @@ class QrEmbeddedImageStyle {
 
   /// Color background
   final Color? shapeColor;
+
+  /// The maximum height for the embedded image. If set, the image will be scaled down to fit this height while maintaining aspect ratio.
+  final double? maxHeight;
 
   /// Check to see if the style object has a non-null, non-zero size.
   bool get hasDefinedSize => size != null && size!.longestSide > 0;
