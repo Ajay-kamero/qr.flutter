@@ -264,24 +264,9 @@ class _QrImageViewState extends State<QrImageView> {
     streamListener = ImageStreamListener(
       (info, err) async {
         stream.removeListener(streamListener);
-        var img = info.image;
-        // Resize if needed
-        if (style != null && style.maxHeight != null && img.height.toDouble() > style.maxHeight!) {
-          final scale = style.maxHeight! / img.height;
-          final newWidth = (img.width * scale).round();
-          final newHeight = (img.height * scale).round();
-          final recorder = ui.PictureRecorder();
-          final canvas = Canvas(recorder);
-          final paint = Paint();
-          canvas.drawImageRect(
-            img,
-            Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble()),
-            Rect.fromLTWH(0, 0, newWidth.toDouble(), newHeight.toDouble()),
-            paint,
-          );
-          img = await recorder.endRecording().toImage(newWidth, newHeight);
-        }
-        completer.complete(img);
+        // No resizing needed here - the QrPainter will handle maxHeight constraint
+        // This prevents double-resizing the image
+        completer.complete(info.image);
       },
       onError: (err, _) {
         stream.removeListener(streamListener);

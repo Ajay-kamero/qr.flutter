@@ -221,21 +221,16 @@ class QrPainter extends CustomPainter {
     Offset? embeddedImagePosition;
     Offset? safeAreaPosition;
     Rect? safeAreaRect;
-    // --- PATCH: Override embeddedImageSize if maxHeight is set ---
     if (embeddedImage != null) {
       final originalSize = Size(
         embeddedImage!.width.toDouble(),
         embeddedImage!.height.toDouble(),
       );
       final requestedSize = embeddedImageStyle.size;
-      // If maxHeight is set, override the height and scale width to maintain aspect ratio
-      if (embeddedImageStyle.maxHeight != null) {
-        final maxH = embeddedImageStyle.maxHeight!;
-        final aspect = originalSize.width / originalSize.height;
-        embeddedImageSize = Size(maxH * aspect, maxH);
-      } else {
-        embeddedImageSize = _scaledAspectSize(size, originalSize, requestedSize);
-      }
+
+      // Calculate the intended display size with maxHeight and maxWidth constraints integrated
+      embeddedImageSize = _scaledAspectSize(size, originalSize, requestedSize, embeddedImageStyle.maxHeight, embeddedImageStyle.maxWidth);
+
       embeddedImagePosition = Offset(
         (size.width - embeddedImageSize.width) / 2.0,
         (size.height - embeddedImageSize.height) / 2.0,
@@ -637,22 +632,36 @@ class QrPainter extends CustomPainter {
 
   bool _hasOneNonZeroSide(Size size) => size.longestSide > 0;
 
-  Size _scaledAspectSize(
-    Size widgetSize,
-    Size originalSize,
-    Size? requestedSize,
-  ) {
+  Size _scaledAspectSize(Size widgetSize, Size originalSize, Size? requestedSize, [double? maxHeight, double? maxWidth]) {
+    // First calculate the initial size based on requestedSize or default sizing
+    Size result;
     if (requestedSize != null && !requestedSize.isEmpty) {
-      return requestedSize;
+      result = requestedSize;
     } else if (requestedSize != null && _hasOneNonZeroSide(requestedSize)) {
       final maxSide = requestedSize.longestSide;
       final ratio = maxSide / originalSize.longestSide;
-      return Size(ratio * originalSize.width, ratio * originalSize.height);
+      result = Size(ratio * originalSize.width, ratio * originalSize.height);
     } else {
       final maxSide = 0.25 * widgetSize.shortestSide;
       final ratio = maxSide / originalSize.longestSide;
-      return Size(ratio * originalSize.width, ratio * originalSize.height);
+      result = Size(ratio * originalSize.width, ratio * originalSize.height);
     }
+
+    // Apply maxWidth and maxHeight constraints while preserving aspect ratio
+    final originalAspect = originalSize.width / originalSize.height;
+
+    // First check if we need to constrain the width
+    if (maxWidth != null && result.width > maxWidth) {
+      result = Size(maxWidth, maxWidth / originalAspect);
+    }
+
+    // Then check if we need to constrain the height
+    // If both constraints are applied, the more restrictive one will be used
+    if (maxHeight != null && result.height > maxHeight) {
+      result = Size(maxHeight * originalAspect, maxHeight);
+    }
+
+    return result;
   }
 
   void _drawImageOverlay(
