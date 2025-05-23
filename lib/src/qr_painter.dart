@@ -667,7 +667,40 @@ class QrPainter extends CustomPainter {
     );
     final src = Alignment.center.inscribe(srcSize, Offset.zero & srcSize);
     final dst = Alignment.center.inscribe(size, position & size);
-    canvas.drawImageRect(embeddedImage!, src, dst, paint);
+
+    // Apply rounded corners to the embedded image based on borderRadius or shape
+    if (style != null && (style.borderRadius > 0 || style.embeddedImageShape != EmbeddedImageShape.none)) {
+      canvas.save();
+
+      // Create clipping path based on the embedded image shape or border radius
+      final clipPath = Path();
+
+      if (style.embeddedImageShape == EmbeddedImageShape.circle) {
+        // For circular images, clip to a circle
+        final center = Offset(dst.left + dst.width / 2, dst.top + dst.height / 2);
+        final radius = dst.width / 2;
+        clipPath.addOval(Rect.fromCircle(center: center, radius: radius));
+      } else if (style.borderRadius > 0) {
+        // For rounded rectangles, use the specified border radius
+        final roundedRect = RRect.fromRectAndRadius(dst, Radius.circular(style.borderRadius));
+        clipPath.addRRect(roundedRect);
+      } else if (style.embeddedImageShape == EmbeddedImageShape.square) {
+        // For square shape without border radius, just use the rectangle
+        clipPath.addRect(dst);
+      } else {
+        // Default: no clipping, draw image normally
+        canvas.drawImageRect(embeddedImage!, src, dst, paint);
+        return;
+      }
+
+      // Apply the clipping path
+      canvas.clipPath(clipPath);
+      canvas.drawImageRect(embeddedImage!, src, dst, paint);
+      canvas.restore();
+    } else {
+      // No special styling, draw image normally
+      canvas.drawImageRect(embeddedImage!, src, dst, paint);
+    }
   }
 
   /// if [gradient] != null, then only black [_qrDefaultColor],
