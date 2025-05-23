@@ -90,22 +90,34 @@ class _MainScreenState extends State<MainScreen> {
                           Color(0xffee82ee),
                         ],
                       ),*/
-                      eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xff128760), borderRadius: 10, dottedInnerPattern: true),
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Color(0xff128760),
+                        borderRadius: 10,dottedInnerPattern: true
+                      ),
                       dataModuleStyle: const QrDataModuleStyle(
                         dataModuleShape: QrDataModuleShape.circle,
                         color: Color(0xff1a5441),
                         borderRadius: 5,
                         roundedOutsideCorners: true,
                       ),
-                      // embeddedImage: AssetImage('assets/images/Bioscope Logo black - Bioscope.png'),
-                      embeddedImage: AssetImage('assets/images/logo.jpg'),
-                      embeddedImageStyle: QrEmbeddedImageStyle(safeArea: true, safeAreaMultiplier: 1.1, borderRadius: 10, maxWidth:90,size: Size(90, 0)),
+                      embeddedImage: AssetImage('assets/images/4.0x/logo_yakka_transparent.png'),
+                      embeddedImageStyle: QrEmbeddedImageStyle(
+                        size: Size.square(40),
+                        color: Colors.white,
+                        safeArea: true,
+                        safeAreaMultiplier: 1.1,
+                        embeddedImageShape: EmbeddedImageShape.square,
+                        shapeColor: Color(0xff128760),
+                        borderRadius: 10,
+                      ),
                     ),
                   ),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40).copyWith(bottom: 40),
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40)
+                    .copyWith(bottom: 40),
                 child: Text(message),
               ),
             ],

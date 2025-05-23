@@ -227,10 +227,7 @@ class QrPainter extends CustomPainter {
         embeddedImage!.height.toDouble(),
       );
       final requestedSize = embeddedImageStyle.size;
-
-      // Calculate the intended display size with maxHeight and maxWidth constraints integrated
-      embeddedImageSize = _scaledAspectSize(size, originalSize, requestedSize, embeddedImageStyle.maxHeight, embeddedImageStyle.maxWidth);
-
+      embeddedImageSize = _scaledAspectSize(size, originalSize, requestedSize);
       embeddedImagePosition = Offset(
         (size.width - embeddedImageSize.width) / 2.0,
         (size.height - embeddedImageSize.height) / 2.0,
@@ -632,36 +629,22 @@ class QrPainter extends CustomPainter {
 
   bool _hasOneNonZeroSide(Size size) => size.longestSide > 0;
 
-  Size _scaledAspectSize(Size widgetSize, Size originalSize, Size? requestedSize, [double? maxHeight, double? maxWidth]) {
-    // First calculate the initial size based on requestedSize or default sizing
-    Size result;
+  Size _scaledAspectSize(
+    Size widgetSize,
+    Size originalSize,
+    Size? requestedSize,
+  ) {
     if (requestedSize != null && !requestedSize.isEmpty) {
-      result = requestedSize;
+      return requestedSize;
     } else if (requestedSize != null && _hasOneNonZeroSide(requestedSize)) {
       final maxSide = requestedSize.longestSide;
       final ratio = maxSide / originalSize.longestSide;
-      result = Size(ratio * originalSize.width, ratio * originalSize.height);
+      return Size(ratio * originalSize.width, ratio * originalSize.height);
     } else {
       final maxSide = 0.25 * widgetSize.shortestSide;
       final ratio = maxSide / originalSize.longestSide;
-      result = Size(ratio * originalSize.width, ratio * originalSize.height);
+      return Size(ratio * originalSize.width, ratio * originalSize.height);
     }
-
-    // Apply maxWidth and maxHeight constraints while preserving aspect ratio
-    final originalAspect = originalSize.width / originalSize.height;
-
-    // First check if we need to constrain the width
-    if (maxWidth != null && result.width > maxWidth) {
-      result = Size(maxWidth, maxWidth / originalAspect);
-    }
-
-    // Then check if we need to constrain the height
-    // If both constraints are applied, the more restrictive one will be used
-    if (maxHeight != null && result.height > maxHeight) {
-      result = Size(maxHeight * originalAspect, maxHeight);
-    }
-
-    return result;
   }
 
   void _drawImageOverlay(
@@ -684,40 +667,7 @@ class QrPainter extends CustomPainter {
     );
     final src = Alignment.center.inscribe(srcSize, Offset.zero & srcSize);
     final dst = Alignment.center.inscribe(size, position & size);
-
-    // Apply rounded corners to the embedded image based on borderRadius or shape
-    if (style != null && (style.borderRadius > 0 || style.embeddedImageShape != EmbeddedImageShape.none)) {
-      canvas.save();
-
-      // Create clipping path based on the embedded image shape or border radius
-      final clipPath = Path();
-
-      if (style.embeddedImageShape == EmbeddedImageShape.circle) {
-        // For circular images, clip to a circle
-        final center = Offset(dst.left + dst.width / 2, dst.top + dst.height / 2);
-        final radius = dst.width / 2;
-        clipPath.addOval(Rect.fromCircle(center: center, radius: radius));
-      } else if (style.borderRadius > 0) {
-        // For rounded rectangles, use the specified border radius
-        final roundedRect = RRect.fromRectAndRadius(dst, Radius.circular(style.borderRadius));
-        clipPath.addRRect(roundedRect);
-      } else if (style.embeddedImageShape == EmbeddedImageShape.square) {
-        // For square shape without border radius, just use the rectangle
-        clipPath.addRect(dst);
-      } else {
-        // Default: no clipping, draw image normally
-        canvas.drawImageRect(embeddedImage!, src, dst, paint);
-        return;
-      }
-
-      // Apply the clipping path
-      canvas.clipPath(clipPath);
-      canvas.drawImageRect(embeddedImage!, src, dst, paint);
-      canvas.restore();
-    } else {
-      // No special styling, draw image normally
-      canvas.drawImageRect(embeddedImage!, src, dst, paint);
-    }
+    canvas.drawImageRect(embeddedImage!, src, dst, paint);
   }
 
   /// if [gradient] != null, then only black [_qrDefaultColor],

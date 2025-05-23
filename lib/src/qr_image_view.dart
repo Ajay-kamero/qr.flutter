@@ -25,7 +25,8 @@ class QrImageView extends StatefulWidget {
     this.size,
     this.padding = const EdgeInsets.all(10.0),
     this.backgroundColor = Colors.transparent,
-    @Deprecated('use colors in eyeStyle and dataModuleStyle instead') this.foregroundColor = Colors.black,
+    @Deprecated('use colors in eyeStyle and dataModuleStyle instead')
+    this.foregroundColor = Colors.black,
     this.version = QrVersions.auto,
     this.errorCorrectionLevel = QrErrorCorrectLevel.L,
     this.errorStateBuilder,
@@ -42,9 +43,9 @@ class QrImageView extends StatefulWidget {
     ),
     this.embeddedImageEmitsError = false,
     this.gradient,
-  })  : assert(
-          QrVersions.isSupportedVersion(version),
-          'QR code version $version is not supported',
+  }) : assert(
+        QrVersions.isSupportedVersion(version),
+        'QR code version $version is not supported',
         ),
         _data = data,
         _qrCode = null;
@@ -57,7 +58,8 @@ class QrImageView extends StatefulWidget {
     this.size,
     this.padding = const EdgeInsets.all(10.0),
     this.backgroundColor = Colors.transparent,
-    @Deprecated('use colors in eyeStyle and dataModuleStyle instead') this.foregroundColor = Colors.black,
+    @Deprecated('use colors in eyeStyle and dataModuleStyle instead')
+    this.foregroundColor = Colors.black,
     this.version = QrVersions.auto,
     this.errorCorrectionLevel = QrErrorCorrectLevel.L,
     this.errorStateBuilder,
@@ -76,9 +78,9 @@ class QrImageView extends StatefulWidget {
     ),
     this.embeddedImageEmitsError = false,
     this.gradient,
-  })  : assert(
-          QrVersions.isSupportedVersion(version),
-          'QR code version $version is not supported',
+  }) : assert(
+        QrVersions.isSupportedVersion(version),
+        'QR code version $version is not supported',
         ),
         _data = null,
         _qrCode = qr;
@@ -175,7 +177,8 @@ class _QrImageViewState extends State<QrImageView> {
       _qr = _validationResult.isValid ? _validationResult.qrCode : null;
     } else if (widget._qrCode != null) {
       _qr = widget._qrCode;
-      _validationResult = QrValidationResult(status: QrValidationStatus.valid, qrCode: _qr);
+      _validationResult =
+          QrValidationResult(status: QrValidationStatus.valid, qrCode: _qr);
     }
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -184,7 +187,8 @@ class _QrImageViewState extends State<QrImageView> {
           return _errorWidget(context, constraints, _validationResult.error);
         }
         // no error, build the regular widget
-        final widgetSize = widget.size ?? constraints.biggest.shortestSide;
+        final widgetSize =
+            widget.size ?? constraints.biggest.shortestSide;
         if (widget.embeddedImage != null) {
           // if requesting to embed an image then we need to load via a
           // FutureBuilder because the image provider will be async.
@@ -193,7 +197,9 @@ class _QrImageViewState extends State<QrImageView> {
             builder: (ctx, snapshot) {
               if (snapshot.error != null) {
                 debugPrint('snapshot error: ${snapshot.error}');
-                return widget.embeddedImageEmitsError ? _errorWidget(context, constraints, snapshot.error) : _qrWidget(null, widgetSize);
+                return widget.embeddedImageEmitsError
+                    ? _errorWidget(context, constraints, snapshot.error)
+                    : _qrWidget(null, widgetSize);
               }
               if (snapshot.hasData) {
                 debugPrint('loaded image');
@@ -213,15 +219,16 @@ class _QrImageViewState extends State<QrImageView> {
 
   Widget _qrWidget(ui.Image? image, double edgeLength) {
     final painter = QrPainter.withQr(
-        qr: _qr!,
-        // ignore: deprecated_member_use_from_same_package
-        color: widget.foregroundColor,
-        gapless: widget.gapless,
-        embeddedImageStyle: widget.embeddedImageStyle,
-        embeddedImage: image,
-        eyeStyle: widget.eyeStyle,
-        dataModuleStyle: widget.dataModuleStyle,
-        gradient: widget.gradient);
+      qr: _qr!,
+      // ignore: deprecated_member_use_from_same_package
+      color: widget.foregroundColor,
+      gapless: widget.gapless,
+      embeddedImageStyle: widget.embeddedImageStyle,
+      embeddedImage: image,
+      eyeStyle: widget.eyeStyle,
+      dataModuleStyle: widget.dataModuleStyle,
+      gradient: widget.gradient
+    );
     return _QrContentView(
       edgeLength: edgeLength,
       backgroundColor: widget.backgroundColor,
@@ -236,8 +243,12 @@ class _QrImageViewState extends State<QrImageView> {
     BoxConstraints constraints,
     Object? error,
   ) {
-    final errorWidget = widget.errorStateBuilder == null ? Container() : widget.errorStateBuilder!(context, error);
-    final errorSideLength = widget.constrainErrorBounds ? widget.size ?? constraints.biggest.shortestSide : constraints.biggest.longestSide;
+    final errorWidget = widget.errorStateBuilder == null
+        ? Container()
+        : widget.errorStateBuilder!(context, error);
+    final errorSideLength = widget.constrainErrorBounds
+        ? widget.size ?? constraints.biggest.shortestSide
+        : constraints.biggest.longestSide;
     return _QrContentView(
       edgeLength: errorSideLength,
       backgroundColor: widget.backgroundColor,
@@ -252,7 +263,9 @@ class _QrImageViewState extends State<QrImageView> {
   Future<ui.Image> _loadQrImage(
     BuildContext buildContext,
     QrEmbeddedImageStyle? style,
-  ) async {
+  ) {
+    if (style != null) {}
+
     final mq = MediaQuery.of(buildContext);
     final completer = Completer<ui.Image>();
     final stream = widget.embeddedImage!.resolve(
@@ -262,10 +275,8 @@ class _QrImageViewState extends State<QrImageView> {
     );
 
     streamListener = ImageStreamListener(
-      (info, err) async {
+      (info, err) {
         stream.removeListener(streamListener);
-        // No resizing needed here - the QrPainter will handle maxHeight constraint
-        // This prevents double-resizing the image
         completer.complete(info.image);
       },
       onError: (err, _) {
